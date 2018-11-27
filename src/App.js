@@ -1,26 +1,28 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Route, Link, NavLink, Switch } from 'react-router-dom';
+import HomepageLayout from './Containers/HomepageLayout';
+const URL = 'http://localhost:3000';
 
 class App extends Component {
+    
+  // componentDidMount() {
+  //   fetch(`${URL}/games`)
+  //   .then(response => response.json())
+  //   .then(games => console.log(games))
+  // }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/" component={HomepageLayout} />
+          <Route path="/search/" component={Search} />
+          {/* <Route path="/profile/" component={Profile} />
+          <Route path="/login/" component={Login} />
+          <Route path="/signup/" component={SignUp} /> */}
+        </Switch>
+      </BrowserRouter>
     );
   }
 }
