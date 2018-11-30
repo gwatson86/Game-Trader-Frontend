@@ -1,62 +1,103 @@
 import React, { Component } from 'react'
 import { Button, Form, Grid, Header, Message, Segment } from 'semantic-ui-react'
-import { BrowserRouter, Route, Link } from 'react-router-dom';
-import SignUp from "./SignUp"
+import { Link } from 'react-router-dom';
 
 class Login extends Component {
+    state = {
+        username: "",
+        password: ""
+    }
 
-    loginClickHander = () => {
+    handleUsernameChange = event => {
+        this.setState({username: event.target.value})
+    }
+
+    handlePasswordChange = event => {
+        this.setState({password: event.target.value})
+    }
+
+    isAuthenticated() {
+        const token = localStorage.getItem("token")
+        return token && token.length > 10
+    }
+
+    submitForm = event => {
+        event.preventDefault()
+        
         fetch("http://localhost:3000/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                username: document.getElementById("un").value,
-                password: document.getElementById("pw").value
+                user: {
+                    username: this.state.username,
+                    password: this.state.password
+                }
             })
         })
-        .then(response => response.json())
-        .then(data => localStorage.setItem("token", JSON.stringify(data.token)))
-        .then(alert(localStorage.getItem("token")))
+        .then(response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                alert("Invalid Username or Password")
+            }    
+        })
+        .then(data => {
+            if (data) {
+                this.props.setUser(data.user)
+                localStorage.setItem("token", data.jwt)
+                this.props.history.push('/profile')
+            }  
+        }) 
     }
     
     render() {
-        return(    
-            <BrowserRouter>
-                <>
-                    <div className='login-form'>
-                        <style>{`
-                        body > div,
-                        body > div > div,
-                        body > div > div > div.login-form {
-                            height: 100%;
-                        }
-                        `}</style>
-                        <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
-                            <Grid.Column style={{ maxWidth: 450 }}>
-                                <Header as='h2' color='black' textAlign='center'>
-                                    Log In to Your Account
-                                </Header>
-                                <Form size='large'>
-                                <Segment stacked>
-                                    <Form.Input fluid icon='user' iconPosition='left' placeholder='Username' id='un'/>
-                                    <Form.Input fluid icon='lock' iconPosition='left' placeholder='Password' type='password' id='pw' />
+        return(  
+            <div className='login-form'>
+                <style>{`
+                body > div,
+                body > div > div,
+                body > div > div > div.login-form {
+                    height: 100%;
+                }
+                `}</style>
+                <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
+                    <Grid.Column style={{ maxWidth: 450 }}>
+                        <Header as='h2' color='black' textAlign='center'>
+                            Log In to Your Account
+                        </Header>
+                        <Form size='large' onSubmit={this.submitForm}>
+                            <Segment stacked>
+                                <Form.Input
+                                    fluid icon='user'
+                                    iconPosition='left'
+                                    placeholder='Username'
+                                    id='un'
+                                    value={this.state.username}
+                                    onChange={this.handleUsernameChange}
+                                />
+                                <Form.Input
+                                    fluid icon='lock'
+                                    iconPosition='left'
+                                    placeholder='Password'
+                                    type='password'
+                                    id='pw'
+                                    value={this.state.password}
+                                    onChange={this.handlePasswordChange}
+                                />
 
-                                    <Button color='blue' fluid size='large' onClick={this.loginClickHander}>
-                                        Log In
-                                    </Button>
-                                </Segment>
-                                </Form>
-                                <Message>
-                                New user? <Link to={"/signup/"}>Sign Up</Link>
-                                </Message>
-                            </Grid.Column>
-                        </Grid>
-                    </div>
-                    <Route path="/signup/" component={SignUp} />
-                </>
-            </BrowserRouter>
+                                <Button color='blue' fluid size='large'>
+                                    Log In
+                                </Button>
+                            </Segment>
+                        </Form>
+                        <Message>
+                            New user? <Link to={"/signup/"}>Sign Up</Link>
+                        </Message>
+                    </Grid.Column>
+                </Grid>
+            </div>
         )
     }
 }
