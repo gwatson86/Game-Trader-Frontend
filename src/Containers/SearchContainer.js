@@ -55,16 +55,20 @@ class SearchContainer extends Component {
     .then(searchResults => this.setState({ 
       searchResults,
       search: true
-    }), () => {console.log(this.state.searchResults)})
+    }))
   }
 
-  createOwnedGame = event => {
+  createOwnedGame = game => {
     const data = {
       user_id: this.props.user.id,
-      game_id: parseInt(event.target.id)
+      game_id: parseInt(game.id),
+      game_name: game.name
     }
-    console.log(this.props.user.id)
-    console.log(event.target.id)
+
+    game.cover
+    ? data.game_cover = `https:${game.cover.url.replace("t_thumb", "t_cover_big")}`
+    : data.game_cover = "https://static.gamespot.com/uploads/scale_medium/mig/0/8/7/8/2220878-600px_no_image_available_svg.png"
+
     fetch("http://localhost:3000/owns", {
       method: "POST",
       headers: {
@@ -75,8 +79,25 @@ class SearchContainer extends Component {
     })
   }
 
-  createWantedGame = event => {
-    console.log(event.target.id)
+  createWantedGame = game => {
+    const data = {
+      user_id: this.props.user.id,
+      game_id: parseInt(game.id),
+      game_name: game.name
+    }
+
+    game.cover
+    ? data.game_cover = `https:${game.cover.url.replace("t_thumb", "t_cover_big")}`
+    : data.game_cover = "https://static.gamespot.com/uploads/scale_medium/mig/0/8/7/8/2220878-600px_no_image_available_svg.png"
+
+    fetch("http://localhost:3000/wants", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer: ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify(data)
+    })
   }
 
   render() {
@@ -118,7 +139,7 @@ class SearchContainer extends Component {
               <button className="ui button" type="submit">Submit</button>
             </form>
             
-            <div className="ui link cards">
+            <div className="ui cards">
               {this.state.searchResults.map(game => {
                 return <div className="card">
                   <div className="image">
@@ -128,12 +149,12 @@ class SearchContainer extends Component {
                     }
                   </div>
                   <div className="content">
-                    <div className="header" >{game.name}</div>
+                    <div className="header">{game.name}</div>
                   </div>
                   <div className="extra content">
                     <div className="ui two buttons">
-                      <div className="ui blue button" onClick={this.createOwnedGame} id={game.id}>I Own This</div>
-                      <div className="ui red button" onClick={this.createWantedGame} id={game.id}>I Want This</div>
+                      <div className="ui blue button" onClick={() => this.createOwnedGame(game)} id={game.id}>I Own This</div>
+                      <div className="ui red button" onClick={() => this.createWantedGame(game)} id={game.id}>I Want This</div>
                   </div>
                 </div>
               </div>

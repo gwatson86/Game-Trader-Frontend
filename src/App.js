@@ -27,7 +27,6 @@ class App extends Component {
     return (
       <BrowserRouter>
         <div>
-          {console.log(this.state.current_user)}
           <Link to="/">Home | </Link>
           {/* {!!this.state.current_user["username"]
            ? <Link to="/">Log Out | </Link>
