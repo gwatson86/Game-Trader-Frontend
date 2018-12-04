@@ -11,7 +11,7 @@ import SignUp from './Containers/SignUp'
 
 class App extends Component {
   state = {
-    current_user: {}
+    current_user: JSON.parse(localStorage.getItem("user"))
   }
 
   setUser = current_user => {

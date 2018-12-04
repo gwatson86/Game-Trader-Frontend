@@ -3,15 +3,18 @@ import { Redirect } from 'react-router-dom'
 
 class Profile extends Component {
   state = {
-    user: this.props.user,
+    user: JSON.parse(localStorage.getItem("user")),
     all_users: [],
     owns: [],
     own_ids: [],
     all_owns: [],
     wants: [],
     want_ids: [],
-    all_wants: []
+    all_wants: [],
+    tradePartners: []
   }
+
+  // WHAT IF... WE MADE THE FRONT END... INTO THE BACK END???
 
   usersWhoOwnWhatIWant = allOwns => {
     return allOwns.filter(own => {
@@ -51,7 +54,7 @@ class Profile extends Component {
         }
       })
       return {
-        "user": user,
+        "user": this.getUser(user),
         "canTradeMe": canTradeMe,
         "wantsFromMe": wantsFromMe
       }
@@ -74,6 +77,12 @@ class Profile extends Component {
     })
   }
 
+  getUser = user_id => {
+    return this.state.all_users.find(user => {
+      return user.id === user_id
+    })
+  }
+
   componentDidMount() {
     let owns = []
     let own_ids = []
@@ -87,7 +96,13 @@ class Profile extends Component {
         'Authorization': `Bearer ${localStorage.getItem("token")}`
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw response
+      }
+    })
     .then(response => {
       this.setState({all_owns: response})
       response.forEach(own => {
@@ -98,38 +113,45 @@ class Profile extends Component {
       })
     })
     .then(() => this.setState({owns, own_ids}))
-
-    fetch('http://localhost:3000/wants', {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem("token")}`
-      }
-    })
-    .then(response => response.json())
-    .then(response => {
-      this.setState({all_wants: response})
-      response.forEach(want => {
-        if (want.user_id === this.props.user.id) {
-          wants.push(want)
-          want_ids.push(want.game_id)
+    .then(() => {
+      fetch('http://localhost:3000/wants', {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem("token")}`
         }
       })
+      .then(response => response.json())
+      .then(response => {
+        this.setState({all_wants: response})
+        response.forEach(want => {
+          if (want.user_id === this.props.user.id) {
+            wants.push(want)
+            want_ids.push(want.game_id)
+          }
+        })
+      })
+      .then(() => this.setState({wants, want_ids}))
     })
-    .then(() => this.setState({wants, want_ids}))
-
-    fetch("http://localhost:3000/users", {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem("token")}`
-      }
+    .then(() => {
+      fetch("http://localhost:3000/users", {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem("token")}`
+        }
+      })
+      .then(response => response.json())
+      .then(all_users => {this.setState({all_users})})
     })
-    .then(response => response.json())
-    .then(all_users => {this.setState({all_users})})
+    .catch(() => {
+      alert("You must be logged in to do that!")
+      
+    })
   }
 
   render() {
+    console.log(this.state.user)
     if (localStorage.getItem('token') && localStorage.getItem('token').length > 50) {
       return (
         <div>
@@ -147,11 +169,15 @@ class Profile extends Component {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td data-label="Potential Trade Partners">Test</td>
-                  <td data-label="Games They Own">Test</td>
-                  <td data-label="Games They Want">Test</td>
-                </tr>
+                {this.tradePartners(this.state.all_owns).map(tp => {
+                  return(
+                    <tr>
+                      <td data-label="Potential Trade Partners">{tp.user.username}</td>
+                      <td data-label="Games They Own">{tp.canTradeMe.map(game => {return game.game_name}).join(', ')}</td>
+                      <td data-label="Games They Want">{tp.wantsFromMe.map(game => {return game.game_name}).join(', ')}</td>
+                    </tr> 
+                  )
+                })}
               </tbody>
             </table>
           </div><br />
@@ -192,7 +218,6 @@ class Profile extends Component {
     } else {
       return (
         <div>
-          {alert("You must log in to do that!")}
           <Redirect to={{pathname: '/login'}} />
         </div>
       )
