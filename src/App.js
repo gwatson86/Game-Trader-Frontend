@@ -5,35 +5,41 @@ import Homepage from './Containers/Homepage';
 import SearchContainer from './Containers/SearchContainer'
 import Profile from './Containers/Profile'
 import Login from './Containers/Login'
-// import Logout from './Containers/Logout'
+import Message from './Containers/Message'
 import SignUp from './Containers/SignUp'
 
 
 class App extends Component {
   state = {
-    current_user: JSON.parse(localStorage.getItem("user"))
+    user: JSON.parse(localStorage.getItem("user"))
   }
 
   setUser = current_user => {
-    this.setState({current_user})
+    this.setState({user: current_user})
   }
 
   logOut = () => {
-    this.setState({current_user: {}})
-    localStorage.removeItem("token")
+    localStorage.clear()
   }
 
   render() {
+    let logInLogOut
+    let signup
+
+    if (this.state.user) {
+      // logInLogOut = <Link to="/logout">Log Out | </Link>
+      logInLogOut = <a href="http://localhost:3001" onClick={this.logOut()}>Log Out |</a>
+      signup = null
+    } else {
+      logInLogOut = <Link to="/login">Log In | </Link>
+      signup = <Link to="/signup">Sign Up | </Link>
+    }
     return (
       <BrowserRouter>
         <div>
           <Link to="/">Home | </Link>
-          {/* {!!this.state.current_user["username"]
-           ? <Link to="/">Log Out | </Link>
-           : <Link to="/login">Log In | </Link>
-          } */}
-          <Link to="/login">Log In | </Link>
-          <Link to="/signup">Sign Up | </Link>
+          {logInLogOut}
+          {signup}
           <Link to="/search">Search Games | </Link>
           <Link to="/profile">Profile</Link>
 
@@ -41,7 +47,7 @@ class App extends Component {
             <Route path="/profile" render={(props) => <Profile {...props} user={this.state.current_user}/>} />
             <Route path="/search" render={(props) => <SearchContainer {...props} user={this.state.current_user} />} />
             <Route path="/login" render={(props) => <Login {...props} setUser={this.setUser}/>} />
-            {/* <Route path="/logout" render={(props) => <Logout {...props} logOut={this.logOut}/>} /> */}
+            <Route path="/message" component={Message} />
             <Route path="/signup" component={SignUp} />
             <Route path="/" render={(routeProps) => {
               return <Homepage {...routeProps}/>

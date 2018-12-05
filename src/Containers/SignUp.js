@@ -19,6 +19,10 @@ class SignUp extends Component {
                 }
             })
         })
+        .then(() => {
+            alert("Your account has been created! Please log in to continue.")
+            this.props.history.push('/login')
+        })
     }
 
     render() {

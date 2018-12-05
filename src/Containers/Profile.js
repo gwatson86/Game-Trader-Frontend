@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 
 class Profile extends Component {
   state = {
@@ -14,7 +14,7 @@ class Profile extends Component {
     tradePartners: []
   }
 
-  // WHAT IF... WE MADE THE FRONT END... INTO THE BACK END???
+  // ABANDON ALL HOPE YE WHO ENTER HERE
 
   usersWhoOwnWhatIWant = allOwns => {
     return allOwns.filter(own => {
@@ -88,7 +88,6 @@ class Profile extends Component {
     let own_ids = []
     let wants = []
     let want_ids = []
-
     fetch('http://localhost:3000/owns', {
       method: "GET",
       headers: {
@@ -106,7 +105,7 @@ class Profile extends Component {
     .then(response => {
       this.setState({all_owns: response})
       response.forEach(own => {
-        if (own.user_id === this.props.user.id) {
+        if (own.user_id === this.state.user.id) {
           owns.push(own)
           own_ids.push(own.game_id)
         }
@@ -125,7 +124,7 @@ class Profile extends Component {
       .then(response => {
         this.setState({all_wants: response})
         response.forEach(want => {
-          if (want.user_id === this.props.user.id) {
+          if (want.user_id === this.state.user.id) {
             wants.push(want)
             want_ids.push(want.game_id)
           }
@@ -144,14 +143,14 @@ class Profile extends Component {
       .then(response => response.json())
       .then(all_users => {this.setState({all_users})})
     })
-    .catch(() => {
+    .catch((e) => {
+      console.log(e)
       alert("You must be logged in to do that!")
       
     })
   }
 
   render() {
-    console.log(this.state.user)
     if (localStorage.getItem('token') && localStorage.getItem('token').length > 50) {
       return (
         <div>
@@ -172,7 +171,12 @@ class Profile extends Component {
                 {this.tradePartners(this.state.all_owns).map(tp => {
                   return(
                     <tr>
-                      <td data-label="Potential Trade Partners">{tp.user.username}</td>
+                      <td data-label="Potential Trade Partners">
+                        {tp.user.username}
+                        <Link to={{pathname: '/message', state: { sender: this.state.user.id, recipient: tp.user.id, name: tp.user.username }}}>
+                          <button>Send Message</button>
+                        </Link>
+                      </td>
                       <td data-label="Games They Own">{tp.canTradeMe.map(game => {return game.game_name}).join(', ')}</td>
                       <td data-label="Games They Want">{tp.wantsFromMe.map(game => {return game.game_name}).join(', ')}</td>
                     </tr> 

@@ -18,7 +18,7 @@ class Login extends Component {
 
     isAuthenticated() {
         const token = localStorage.getItem("token")
-        return token && token.length > 10
+        return token && token.length > 50
     }
 
     submitForm = event => {
@@ -48,7 +48,7 @@ class Login extends Component {
                 this.props.setUser(data.user)
                 localStorage.setItem("token", data.jwt)
                 localStorage.setItem("user", JSON.stringify(data.user))
-                this.props.history.push('/profile')
+                this.props.history.push('/')
             }  
         }) 
     }

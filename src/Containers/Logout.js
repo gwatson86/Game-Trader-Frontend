@@ -1,11 +1,12 @@
-import { Component } from 'react'
+import React, { Component } from 'react'
+import { Redirect } from 'react-router-dom'
 
 class Logout extends Component {
     
     render() {
-        console.log(this.props.logOut)
+        this.props.logOut()
         return(
-            this.props.history.push("/")
+            this.props.history.push('/login')
         )
     }
 }
