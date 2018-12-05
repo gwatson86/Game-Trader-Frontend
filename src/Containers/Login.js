@@ -48,7 +48,7 @@ class Login extends Component {
                 this.props.setUser(data.user)
                 localStorage.setItem("token", data.jwt)
                 localStorage.setItem("user", JSON.stringify(data.user))
-                this.props.history.push('/')
+                this.props.history.push('/profile')
             }  
         }) 
     }

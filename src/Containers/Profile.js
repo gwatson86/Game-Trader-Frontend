@@ -11,7 +11,7 @@ class Profile extends Component {
     wants: [],
     want_ids: [],
     all_wants: [],
-    tradePartners: []
+    tradePartners: []   // function to match current user to other users that have what the current user wants and vice versa
   }
 
   // ABANDON ALL HOPE YE WHO ENTER HERE
@@ -43,12 +43,12 @@ class Profile extends Component {
 
   tradePartners = array => {
     return this.usersWhoAlsoWantWhatIOwn(array).map(user => {
-      const canTradeMe = this.getOwnsOfUser(user).filter(own => {
+      const canTradeMe = this.getOtherUsersOwns(user).filter(own => {
         if (this.state.want_ids.includes(own.game_id)) {
           return own.game_name
         }
       })
-      const wantsFromMe = this.getWantsOfUser(user).filter(want => {
+      const wantsFromMe = this.getOtherUsersWants(user).filter(want => {
         if (this.state.own_ids.includes(want.game_id)) {
           return want.game_name
         }
@@ -61,7 +61,7 @@ class Profile extends Component {
     })
   }
 
-  getOwnsOfUser = user_id => {
+  getOtherUsersOwns = user_id => {
     return this.state.all_owns.filter(own => {
       if (own.user_id === user_id) {
         return own
@@ -69,7 +69,7 @@ class Profile extends Component {
     })
   }
 
-  getWantsOfUser = user_id => {
+  getOtherUsersWants = user_id => {
     return this.state.all_wants.filter(want => {
         if (want.user_id === user_id) {
           return want
@@ -83,12 +83,52 @@ class Profile extends Component {
     })
   }
 
+  getAllOwns = users => {
+    let all_owns = []
+    users.forEach(user => {
+      user.owns.forEach(own => {
+        all_owns.push(own)
+      })
+    })
+    return all_owns
+  }
+
+  getAllWants = users => {
+    let all_wants = []
+    users.forEach(user => {
+      user.wants.forEach(want => {
+        all_wants.push(want)
+      })
+    })
+    return all_wants
+  }
+
+  getUserOwns = users => {
+    return this.getAllOwns(users).filter(own => {
+      return own.user_id === this.state.user.id
+    })
+  }
+
+  getUserWants = users => {
+    return this.getAllWants(users).filter(want => {
+      return want.user_id === this.state.user.id
+    })
+  }
+
+  getUserOwnIDs = users => {
+    return this.getUserOwns(users).map(own => {
+      return own.game_id
+    })
+  }
+
+  getUserWantIDs = users => {
+    return this.getUserWants(users).map(want => {
+      return want.game_id
+    })
+  }
+
   componentDidMount() {
-    let owns = []
-    let own_ids = []
-    let wants = []
-    let want_ids = []
-    fetch('http://localhost:3000/owns', {
+    fetch('http://localhost:3000/profile_init', {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
@@ -102,53 +142,100 @@ class Profile extends Component {
         throw response
       }
     })
-    .then(response => {
-      this.setState({all_owns: response})
-      response.forEach(own => {
-        if (own.user_id === this.state.user.id) {
-          owns.push(own)
-          own_ids.push(own.game_id)
-        }
+    .then(all_users => {
+      const all_owns = this.getAllOwns(all_users)
+      const all_wants = this.getAllWants(all_users)
+      const owns = this.getUserOwns(all_users)
+      const wants = this.getUserWants(all_users)
+      const own_ids = this.getUserOwnIDs(all_users)
+      const want_ids = this.getUserWantIDs(all_users)
+      this.setState({
+        all_users,
+        all_owns,
+        all_wants,
+        owns,
+        wants,
+        own_ids,
+        want_ids
       })
-    })
-    .then(() => this.setState({owns, own_ids}))
-    .then(() => {
-      fetch('http://localhost:3000/wants', {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem("token")}`
-        }
-      })
-      .then(response => response.json())
-      .then(response => {
-        this.setState({all_wants: response})
-        response.forEach(want => {
-          if (want.user_id === this.state.user.id) {
-            wants.push(want)
-            want_ids.push(want.game_id)
-          }
-        })
-      })
-      .then(() => this.setState({wants, want_ids}))
-    })
-    .then(() => {
-      fetch("http://localhost:3000/users", {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem("token")}`
-        }
-      })
-      .then(response => response.json())
-      .then(all_users => {this.setState({all_users})})
     })
     .catch((e) => {
       console.log(e)
       alert("You must be logged in to do that!")
-      
     })
   }
+
+
+
+
+  //   let owns = []
+  //   let own_ids = []
+  //   let wants = []
+  //   let want_ids = []
+  //   fetch('http://localhost:3000/owns', {
+  //     method: "GET",
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': `Bearer ${localStorage.getItem("token")}`
+  //     }
+  //   })
+    // .then(response => {
+    //   if (response.ok) {
+    //     return response.json()
+    //   } else {
+    //     throw response
+    //   }
+    // })
+  //   /** ====================================================== */
+  //   /*this is not necessary. We should be using the include keyword on backend to do this for us*/
+  //   /** ====================================================== */
+
+  //   .then(response => {
+  //     this.setState({all_owns: response})
+  //     response.forEach(own => {
+  //       if (own.user_id === this.state.user.id) {
+  //         owns.push(own)
+  //         own_ids.push(own.game_id)
+  //       }
+  //     })
+  //   })
+  //   .then(() => this.setState({owns, own_ids}))
+  //   .then(() => {
+  //     fetch('http://localhost:3000/wants', {
+  //       method: "GET",
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${localStorage.getItem("token")}`
+  //       }
+  //     })
+  //     .then(response => response.json())
+  //     .then(response => {
+  //       this.setState({all_wants: response})
+  //       response.forEach(want => {
+  //         if (want.user_id === this.state.user.id) {
+  //           wants.push(want)
+  //           want_ids.push(want.game_id)
+  //         }
+  //       })
+  //     })
+  //     .then(() => this.setState({wants, want_ids}))
+  //   })
+  //   .then(() => {
+  //     fetch("http://localhost:3000/users", {
+  //       method: "GET",
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${localStorage.getItem("token")}`
+  //       }
+  //     })
+  //     .then(response => response.json())
+  //     .then(all_users => {this.setState({all_users})})
+  //   })
+    // .catch((e) => {
+    //   console.log(e)
+    //   alert("You must be logged in to do that!")
+    // })
+  // }
 
   render() {
     if (localStorage.getItem('token') && localStorage.getItem('token').length > 50) {
