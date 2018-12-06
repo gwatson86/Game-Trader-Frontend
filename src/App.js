@@ -6,7 +6,10 @@ import SearchContainer from './Containers/SearchContainer'
 import Profile from './Containers/Profile'
 import Login from './Containers/Login'
 import Message from './Containers/Message'
+import UserMessages from './Containers/UserMessages'
 import SignUp from './Containers/SignUp'
+import { Nav, NavItem } from 'react-bootstrap'
+import { Helmet } from 'react-helmet'
 
 
 class App extends Component {
@@ -19,35 +22,47 @@ class App extends Component {
   }
 
   logOut = () => {
-    localStorage.clear()
+    console.log("logging out!")
+    localStorage.clear();
+    this.setState({ user: null })
   }
 
   render() {
+    console.log(this.state.user)
     let logInLogOut
     let signup
 
     if (this.state.user) {
-      // logInLogOut = <Link to="/logout">Log Out | </Link>
-      logInLogOut = <a href="http://localhost:3001" onClick={this.logOut()}>Log Out |</a>
+      logInLogOut = <Link to="/login" onClick={this.logOut}>Log Out</Link>
       signup = null
     } else {
-      logInLogOut = <Link to="/login">Log In | </Link>
-      signup = <Link to="/signup">Sign Up | </Link>
+      logInLogOut = <Link to="/login">Log In</Link>
+      signup = <Link to="/signup">Sign Up</Link>
     }
     return (
       <BrowserRouter>
         <div>
-          <Link to="/">Home | </Link>
-          {logInLogOut}
-          {signup}
-          <Link to="/search">Search Games | </Link>
-          <Link to="/profile">Profile</Link>
+          <Helmet>
+            <style>{'body { background-image: url(https://i.imgur.com/WpE7Rl9.jpg); }'}</style>
+          </Helmet>
+
+              <Link to="/">Home</Link>
+            
+              {logInLogOut}
+           
+              {signup}
+            
+              <Link to="/search">Search Games</Link>
+            
+              <Link to="/profile">Profile</Link>
+            
 
           <Switch>
-            <Route path="/profile" render={(props) => <Profile {...props} user={this.state.current_user}/>} />
-            <Route path="/search" render={(props) => <SearchContainer {...props} user={this.state.current_user} />} />
+            <Route path="/profile" render={(props) => <Profile {...props} user={this.state.user}/>} />
+            <Route path="/search" render={(props) => <SearchContainer {...props} user={this.state.user} />} />
             <Route path="/login" render={(props) => <Login {...props} setUser={this.setUser}/>} />
-            <Route path="/message" component={Message} />
+            <Route path="/new_message" component={Message} />
+            <Route path="/messages" component={UserMessages} />
             <Route path="/signup" component={SignUp} />
             <Route path="/" render={(routeProps) => {
               return <Homepage {...routeProps}/>

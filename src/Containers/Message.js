@@ -9,11 +9,14 @@ class Message extends Component {
         this.setState({content: event.target.value})
     }
 
-    sendMessage = () => {
+    sendMessage = (e) => {
+        e.preventDefault()
         const data = {
-            sender_id: this.props.location.state.sender,
-            recipient_id: this.props.location.state.recipient,
-            content: this.state.content
+            message: {
+                sender_id: this.props.location.state.sender,
+                recipient_id: this.props.location.state.recipient,
+                content: this.state.content
+            }
         }
         fetch('http://localhost:3000/messages', {
             method: 'POST',

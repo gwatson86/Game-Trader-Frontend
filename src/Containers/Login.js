@@ -54,7 +54,7 @@ class Login extends Component {
     }
     
     render() {
-        return(  
+        return(
             <div className='login-form'>
                 <style>{`
                 body > div,
@@ -63,7 +63,7 @@ class Login extends Component {
                     height: 100%;
                 }
                 `}</style>
-                <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
+                <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle' className="loginForm">
                     <Grid.Column style={{ maxWidth: 450 }}>
                         <Header as='h2' color='black' textAlign='center'>
                             Log In to Your Account

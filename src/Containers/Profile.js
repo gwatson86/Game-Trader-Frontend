@@ -10,11 +10,8 @@ class Profile extends Component {
     all_owns: [],
     wants: [],
     want_ids: [],
-    all_wants: [],
-    tradePartners: []   // function to match current user to other users that have what the current user wants and vice versa
+    all_wants: []
   }
-
-  // ABANDON ALL HOPE YE WHO ENTER HERE
 
   usersWhoOwnWhatIWant = allOwns => {
     return allOwns.filter(own => {
@@ -160,7 +157,6 @@ class Profile extends Component {
       })
     })
     .catch((e) => {
-      console.log(e)
       alert("You must be logged in to do that!")
     })
   }
@@ -169,8 +165,10 @@ class Profile extends Component {
     if (localStorage.getItem('token') && localStorage.getItem('token').length > 50) {
       return (
         <div>
+          <br /><br />
           <div>
-            <h1>{this.state.user.username}'s Profile</h1><br/>
+            <h1>{this.state.user.username}'s Profile</h1>
+            <h2><Link to={{pathname: '/messages', state: { user: this.state.user.id, allUsers: this.state.all_users }}}>View Your Messages</Link></h2><br/>
           </div>
 
           <div>
@@ -185,10 +183,10 @@ class Profile extends Component {
               <tbody>
                 {this.tradePartners(this.state.all_owns).map(tp => {
                   return(
-                    <tr>
+                    <tr key={Math.floor(Math.random()*10000000000)}>
                       <td data-label="Potential Trade Partners">
-                        {tp.user.username}
-                        <Link to={{pathname: '/message', state: { sender: this.state.user.id, recipient: tp.user.id, name: tp.user.username }}}>
+                        {tp.user.username} <br />
+                        <Link to={{pathname: '/new_message', state: { sender: this.state.user.id, recipient: tp.user.id, name: tp.user.username }}}>
                           <button>Send Message</button>
                         </Link>
                       </td>
@@ -205,7 +203,7 @@ class Profile extends Component {
             <h2>Owned Games</h2>
             <div className="ui cards">
               {this.state.owns.map(own => {
-                return <div className="card">
+                return <div className="card" key={Math.floor(Math.random()*10000000000)}>
                   <div className="image">
                     <img src={own.game_cover} alt=""/>
                   </div>
@@ -221,7 +219,7 @@ class Profile extends Component {
             <h2>Wanted Games</h2>
             <div className="ui cards">
               {this.state.wants.map(want => {
-                return <div className="card">
+                return <div className="card" key={Math.floor(Math.random()*10000000000)}>
                   <div className="image">
                     <img src={want.game_cover} alt=""/>
                   </div>

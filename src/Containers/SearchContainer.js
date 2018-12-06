@@ -60,15 +60,17 @@ class SearchContainer extends Component {
 
   createOwnedGame = game => {
     const data = {
-      user_id: this.props.user.id,
-      game_id: parseInt(game.id),
-      game_name: game.name
+      own: {
+        user_id: this.props.user.id,
+        game_id: parseInt(game.id),
+        game_name: game.name
+      }
     }
 
     game.cover
-    ? data.game_cover = `https:${game.cover.url.replace("t_thumb", "t_cover_big")}`
-    : data.game_cover = "https://static.gamespot.com/uploads/scale_medium/mig/0/8/7/8/2220878-600px_no_image_available_svg.png"
-
+    ? data.own.game_cover = `https:${game.cover.url.replace("t_thumb", "t_cover_big")}`
+    : data.own.game_cover = "https://static.gamespot.com/uploads/scale_medium/mig/0/8/7/8/2220878-600px_no_image_available_svg.png"
+    console.log(data)
     fetch("http://localhost:3000/owns", {
       method: "POST",
       headers: {
@@ -81,9 +83,11 @@ class SearchContainer extends Component {
 
   createWantedGame = game => {
     const data = {
-      user_id: this.props.user.id,
-      game_id: parseInt(game.id),
-      game_name: game.name
+      want: {
+        user_id: this.props.user.id,
+        game_id: parseInt(game.id),
+        game_name: game.name
+      }
     }
 
     game.cover
@@ -101,6 +105,7 @@ class SearchContainer extends Component {
   }
 
   render() {
+    console.log(this.state)
     if (localStorage.getItem("token")) {
       if (!this.state.search) {
         return (
@@ -137,7 +142,7 @@ class SearchContainer extends Component {
                 </select>
               </div>
               <button className="ui button" type="submit">Submit</button>
-            </form>
+            </form><br />
             
             <div className="ui cards">
               {this.state.searchResults.map(game => {
