@@ -28,7 +28,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state.user)
     let logInLogOut
     let signup
 
@@ -45,17 +44,23 @@ class App extends Component {
           <Helmet>
             <style>{'body { background-image: url(https://i.imgur.com/WpE7Rl9.jpg); }'}</style>
           </Helmet>
-
+          <Nav bsStyle="tabs" activeKey="1">
+            <NavItem>
               <Link to="/">Home</Link>
-            
+            </NavItem>
+            <NavItem>
               {logInLogOut}
-           
+            </NavItem>
+            <NavItem>
               {signup}
-            
+            </NavItem>
+            <NavItem>
               <Link to="/search">Search Games</Link>
-            
+            </NavItem>
+            <NavItem>
               <Link to="/profile">Profile</Link>
-            
+            </NavItem>
+          </Nav>
 
           <Switch>
             <Route path="/profile" render={(props) => <Profile {...props} user={this.state.user}/>} />
