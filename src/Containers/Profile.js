@@ -134,6 +134,16 @@ class Profile extends Component {
     })
   }
 
+  removeWant = id => {
+    fetch(`http://localhost:3000/wants/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem("token")}`
+      }
+    })
+  }
+
   componentDidMount() {
     fetch('http://localhost:3000/profile_init', {
       method: "GET",
@@ -237,7 +247,7 @@ class Profile extends Component {
                   <div className="content">
                     <div className="header">{want.game_name}</div>
                   </div>
-                  <div className="ui button">Remove Game</div>
+                  <div className="ui button" onClick={() => this.removeWant(want.id)}>Remove Game</div>
                 </div>
               })}
             </div>
